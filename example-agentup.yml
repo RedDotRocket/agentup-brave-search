@@ -1,0 +1,48 @@
+# Example AgentUp configuration for using the Brave Search plugin
+# Copy this to your agent's agentup.yml and customize as needed
+
+agent:
+  name: Search Agent
+  description: An agent with Brave Search capabilities
+
+# Plugin configuration
+plugins:
+  - plugin_id: brave_search
+    package: agentup-brave
+    name: Brave Search Plugin
+    description: Provides web search functionality via Brave Search API
+    enabled: true
+    
+    # Plugin-specific configuration
+    config:
+      # Option 1: Use environment variable substitution (recommended)
+      api_key: ${BRAVE_API_KEY}
+      
+      # Option 2: Set API key directly (not recommended for production)
+      # api_key: "your-brave-api-key-here"
+      
+      # Option 3: Leave empty to fall back to BRAVE_API_KEY environment variable
+      # api_key:
+      
+      # Optional configuration
+      default_country: us  # Default country for search results
+      max_results: 10      # Maximum number of results to return
+    
+    # Capability configuration
+    capabilities:
+      - capability_id: search_internet
+        required_scopes: ["api:read"]
+        enabled: true
+
+# AI Provider configuration (if using AI features)
+ai_provider:
+  enabled: true
+  provider: openai  # or anthropic, etc.
+  model: gpt-4o-mini
+  temperature: 0.7
+
+# API configuration
+api:
+  enabled: true
+  host: 0.0.0.0
+  port: 8000
