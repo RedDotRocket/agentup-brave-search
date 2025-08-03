@@ -19,7 +19,7 @@ pip install -e .
 
 ### From AgentUp Registry or PyPi (when published):
 ```bash
-pip install agentup-brave
+pip install--extra-index-url https://api.agentup.dev/simple agentup-brave
 ```
 
 ## Configuration
