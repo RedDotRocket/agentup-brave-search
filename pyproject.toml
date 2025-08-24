@@ -1,15 +1,10 @@
 [project]
 name = "agentup-brave"
-version = "0.4.0"
+version = "0.5.0"
 description = "A plugin that provides Brave Search functionality"
-authors = [
-    { name = "Luke Hinds", email = "luke@rdrocket.com" }
-]
+authors = [{ name = "Luke Hinds", email = "luke@rdrocket.com" }]
 requires-python = ">=3.11"
-dependencies = [
-    "agentup>=0.5.1",
-    "build>=1.3.0",
-]
+dependencies = ["agentup>=0.6.4", "build>=1.3.0"]
 
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -22,33 +17,26 @@ classifiers = [
 ]
 
 [project.entry-points."agentup.plugins"]
-brave_search = "brave.plugin:BraveSearchPlugin"
+agentup_brave = "agentup_brave.plugin:BraveSearchPlugin"
 
 [tool.ruff]
 target-version = "py310"
 line-length = 120
 select = ["UP"]
-exclude = [
-    ".git",
-    "__pycache__",
-    "build",
-    "dist",
-    ".venv",
-    "venv",
-]
+exclude = [".git", "__pycache__", "build", "dist", ".venv", "venv"]
 
 [tool.ruff.lint]
 select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "B",   # flake8-bugbear
-    "UP",  # pyupgrade
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "UP", # pyupgrade
 ]
 ignore = [
-    "E501",  # line too long (handled by formatter)
-    "B008",  # do not perform function calls in argument defaults
+    "E501", # line too long (handled by formatter)
+    "B008", # do not perform function calls in argument defaults
 ]
 
 [tool.ruff.format]
@@ -60,7 +48,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/brave"]
+packages = ["src/agentup_brave"]
 
 # Include static files in the wheel
 [tool.hatch.build.targets.wheel.force-include]

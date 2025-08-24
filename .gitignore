@@ -25,3 +25,4 @@ wheels/
 .idea/
 env/
 venv/
+.claude
