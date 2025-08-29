@@ -9,17 +9,21 @@ This is an AgentUp plugin that provides Brave Search functionality. It follows t
 ## Plugin Structure
 
 ```
-brave/
+agentup-brave-search/
 ├── src/
-│   └── brave/
+│   └── agentup_brave/
 │       ├── __init__.py
 │       └── plugin.py           # Main plugin implementation
 ├── tests/
 │   └── test_brave.py
-├── pyproject.toml              # Package configuration with AgentUp entry point
-├── README.md                   # Plugin documentation
-├── example-agentup.yml         # Example configuration
-└── CLAUDE.md                   # This file
+├── static/
+│   └── logo.png               # Plugin logo
+├── dist/                      # Distribution files
+├── pyproject.toml             # Package configuration with AgentUp entry point
+├── README.md                  # Plugin documentation
+├── example-agentup.yml        # Example configuration
+├── uv.lock                    # UV lock file
+└── CLAUDE.md                  # This file
 ```
 
 ## Core Plugin Architecture
@@ -35,7 +39,7 @@ The plugin inherits from `Plugin` base class and uses decorators:
 The plugin is registered via entry point in `pyproject.toml`:
 ```toml
 [project.entry-points."agentup.plugins"]
-brave_search = "brave.plugin:BraveSearchPlugin"
+agentup_brave = "agentup_brave.plugin:BraveSearchPlugin"
 ```
 
 ## Development Guidelines
@@ -61,13 +65,15 @@ class BraveSearchPlugin(Plugin):
         self.version = "1.0.0"
         self.api_key = None
         
-    async def initialize(self, config: dict[str, Any], services: dict[str, Any]):
-        """Initialize plugin with configuration and services."""
+    def configure(self, config: dict[str, Any]) -> None:
+        """Configure the plugin with settings."""
+        super().configure(config)
         self.config = config
         # Get API key from config or environment
         self.api_key = config.get("api_key") or os.environ.get("BRAVE_API_KEY")
-        # Store services
-        self.llm_service = services.get("llm")
+        # Initialize Brave client if API key is available
+        if self.api_key:
+            self.brave_client = BraveClient(api_key=self.api_key, logger=self.logger)
 ```
 
 #### 2. Capability Definition
@@ -152,7 +158,7 @@ async def search_internet(self, context: CapabilityContext) -> dict[str, Any]:
 #### Plugin Configuration in agentup.yml
 ```yaml
 plugins:
-  - plugin_id: brave_search
+  - plugin_id: agentup_brave
     package: agentup-brave
     name: Brave Search Plugin
     enabled: true
@@ -163,6 +169,7 @@ plugins:
       # api_key: "your-api-key-here"
       max_results: 10
       default_country: us
+      debug: false
     capabilities:
       - capability_id: search_internet
         required_scopes: ["api:read"]
@@ -195,7 +202,7 @@ pytest tests/ -v
 agentup plugin list
 
 # Validate plugin
-agentup plugin validate brave_search
+agentup plugin validate agentup_brave
 ```
 
 ### External Dependencies
@@ -312,8 +319,7 @@ class BraveSearchPlugin(Plugin):
 def test_config_reading():
     plugin = BraveSearchPlugin()
     config = {"api_key": "test-key", "max_results": 5}
-    services = {}
-    await plugin.initialize(config, services)
+    plugin.configure(config)
     assert plugin.api_key == "test-key"
 ```
 
@@ -337,7 +343,8 @@ def test_config_reading():
 - No longer uses pluggy hooks (`@hookimpl`)
 - Uses `@capability` decorator for defining capabilities
 - Inherits from `Plugin` base class
-- Configuration passed via `CapabilityContext`
+- Configuration handled via `configure()` method
+- Context passed via `CapabilityContext`
 
 ### Framework Integration
 - Leverage AgentUp's built-in features
