@@ -48,15 +48,9 @@ class BraveSearchResponse:
     """Container for Brave search API response."""
 
     def __init__(self, data: dict):
-        self.web_results = [
-            BraveSearchResult(result) for result in data.get("web", {}).get("results", [])
-        ]
-        self.news_results = [
-            BraveNewsResult(result) for result in data.get("news", {}).get("results", [])
-        ]
-        self.video_results = [
-            BraveVideoResult(result) for result in data.get("videos", {}).get("results", [])
-        ]
+        self.web_results = [BraveSearchResult(result) for result in data.get("web", {}).get("results", [])]
+        self.news_results = [BraveNewsResult(result) for result in data.get("news", {}).get("results", [])]
+        self.video_results = [BraveVideoResult(result) for result in data.get("videos", {}).get("results", [])]
 
 
 class BraveClient:
@@ -67,9 +61,7 @@ class BraveClient:
         self.base_url = "https://api.search.brave.com/res/v1/web/search"
         self.logger = logger or structlog.get_logger(__name__)
 
-    async def search(
-        self, q: str, count: int = 10, country: str | None = None
-    ) -> BraveSearchResponse:
+    async def search(self, q: str, count: int = 10, country: str | None = None) -> BraveSearchResponse:
         """Perform a search using the Brave Search API."""
         headers = {
             "Accept": "application/json",
@@ -115,9 +107,7 @@ class BraveSearchPlugin(Plugin):
         # Don't fail during initialization if key is missing - let it be handled at runtime
         # This allows the plugin to be loaded even if the key isn't set yet
         if not self.api_key:
-            self.logger.warning(
-                "Brave API key not found during configuration - will check again at runtime"
-            )
+            self.logger.warning("Brave API key not found during configuration - will check again at runtime")
         else:
             # Initialize the client if we have the key
             self.brave_client = BraveClient(api_key=self.api_key, logger=self.logger)
@@ -426,16 +416,22 @@ class BraveSearchPlugin(Plugin):
         # Final cleanup and length check
         query = query.strip()
         if len(query) > 400:  # Brave API has query length limits
-            query = query[:400].rsplit(' ', 1)[0]  # Cut at word boundary
+            query = query[:400].rsplit(" ", 1)[0]  # Cut at word boundary
 
         return query
 
     def _is_task_context(self, text: str) -> bool:
         """Check if the text appears to be a task context rather than a search query."""
         task_indicators = [
-            "GOAL:", "ITERATION:", "PLANNED TASKS:", "Task 1:", "Task 2:",
-            "Take the next concrete action", "make progress toward the goal",
-            "call the 'mark_goal_complete' tool", "Otherwise, continue making concrete progress"
+            "GOAL:",
+            "ITERATION:",
+            "PLANNED TASKS:",
+            "Task 1:",
+            "Task 2:",
+            "Take the next concrete action",
+            "make progress toward the goal",
+            "call the 'mark_goal_complete' tool",
+            "Otherwise, continue making concrete progress",
         ]
         return any(indicator in text for indicator in task_indicators)
 
@@ -453,10 +449,10 @@ class BraveSearchPlugin(Plugin):
             return "how to install pandas matplotlib seaborn using pip"
 
         # Generic fallback - extract first meaningful line
-        lines = task_text.split('\n')
+        lines = task_text.split("\n")
         for line in lines:
             line = line.strip()
-            if line and not line.startswith(('GOAL:', 'ITERATION:', 'PLANNED TASKS:', 'Task ', 'IMPORTANT:')):
+            if line and not line.startswith(("GOAL:", "ITERATION:", "PLANNED TASKS:", "Task ", "IMPORTANT:")):
                 return line[:100]  # Limit to reasonable length
 
         return "python data analysis libraries"  # Safe fallback
@@ -464,7 +460,7 @@ class BraveSearchPlugin(Plugin):
     def _extract_first_meaningful_phrase(self, text: str) -> str:
         """Extract the first meaningful phrase from long text."""
         # Split by sentences and take the first reasonable one
-        sentences = text.replace('\n', ' ').split('.')
+        sentences = text.replace("\n", " ").split(".")
         for sentence in sentences:
             sentence = sentence.strip()
             if 10 <= len(sentence) <= 200:  # Reasonable sentence length

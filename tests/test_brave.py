@@ -91,6 +91,7 @@ class TestBravePlugin:
         mock_search_results.video_results = []
 
         from unittest.mock import AsyncMock
+
         mock_brave_instance = Mock()
         # Make the search method async
         mock_brave_instance.search = AsyncMock(return_value=mock_search_results)
@@ -118,6 +119,7 @@ class TestBravePlugin:
     async def test_execute_capability_search_error(self, mock_brave_class):
         """Test execution with search error."""
         from unittest.mock import AsyncMock
+
         mock_brave_instance = Mock()
         # Make the search method async and raise an error
         mock_brave_instance.search = AsyncMock(side_effect=Exception("Search API error"))
@@ -195,9 +197,7 @@ PLANNED TASKS: Task 1: Do something
     async def test_extract_key_terms_from_task(self):
         """Test key term extraction from task descriptions."""
         task_with_goal = "GOAL: Install pandas and matplotlib libraries\nITERATION: 1"
-        task_with_install = (
-            "Task 1: Install necessary Python libraries (pandas, matplotlib, seaborn) using pip"
-        )
+        task_with_install = "Task 1: Install necessary Python libraries (pandas, matplotlib, seaborn) using pip"
         task_generic = "Some other task description that doesn't match patterns"
         task_empty = "GOAL:\nITERATION: 1\nPLANNED TASKS: Task 1:"
 
@@ -208,9 +208,7 @@ PLANNED TASKS: Task 1: Do something
         assert "how to install pandas matplotlib seaborn using pip" == query2
 
         query3 = self.plugin._extract_key_terms_from_task(task_generic)
-        assert (
-            "Some other task description that doesn't match patterns" == query3
-        )  # Returns first line
+        assert "Some other task description that doesn't match patterns" == query3  # Returns first line
 
         query4 = self.plugin._extract_key_terms_from_task(task_empty)
         assert "python data analysis libraries" == query4  # fallback when no meaningful lines
